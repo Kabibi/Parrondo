@@ -32,7 +32,7 @@ def vp_start_gui():
     '''Starting point when module is the main routine.'''
     global val, w, root
     root = Tk()
-    top = Parrondo____(root, size=5, init_reward=100, p1=0.8, p2=0.5)
+    top = Parrondo____(root, size=5, init_reward=100, p1=0.8, p2=0.5, n_sampels=12)
     parrondo_support.init(root, top)
     root.mainloop()
 
@@ -57,7 +57,7 @@ def destroy_Parrondo____():
 
 
 class Parrondo____:
-    def __init__(self, top=None, size=5, init_reward=100, p1=0.8, p2=0.5, n_sampels=5):
+    def __init__(self, top=None, size=5, init_reward=100, p1=0.8, p2=0.5, n_sampels=2):
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
         self.p1 = p1
@@ -71,10 +71,11 @@ class Parrondo____:
         # fine neighbors
         for i in range(size):
             for j in range(size):
-                self.neighbors.append([self.points[i - 1, j],
-                                       self.points[(i + 1) % size, j],
-                                       self.points[i, j - 1],
-                                       self.points[i, (j + 1) % size]])
+                neighbors = [self.points[i - 1, j],
+                             self.points[(i + 1) % size, j],
+                             self.points[i, j - 1],
+                             self.points[i, (j + 1) % size]]
+                self.neighbors.append(list(set(neighbors)))
 
         _bgcolor = '#d9d9d9'  # X11 color: 'gray85'
         _fgcolor = '#000000'  # X11 color: 'black'
@@ -366,16 +367,16 @@ class Parrondo____:
             self.Canvas1.create_text((x1 + x2) / 2, (y1 + y2) / 2,
                                      font="Times " + str(80 // self.size) + " italic bold",
                                      text=str(self.neighbors[num][i]))
-            self.Canvas1.create_text((x1 + x2) / 2, (y1 + y2) / 2 + 40,
-                                     font="Times " + str(80 // self.size // 2) + " italic bold",
+            self.Canvas1.create_text((x1 + x2) / 2, (y1 + y2) / 2 + self.diameter,  ######
+                                     font="Times " + str(10) + " italic bold",
                                      text='收益:' + str(self.rewards[self.neighbors[num][i]]))
 
         self.Canvas1.create_oval(cx1, cy1, cx2, cy2, fill='yellow')
         self.Canvas1.create_text((cx1 + cx2) / 2, (cy1 + cy2) / 2,
                                  font="Times " + str(80 // self.size) + " italic bold",
                                  text=str(num))
-        self.Canvas1.create_text((cx1 + cx2) / 2, (cy1 + cy2) / 2 - 40,
-                                 font="Times " + str(80 // self.size // 2) + " italic bold",
+        self.Canvas1.create_text((cx1 + cx2) / 2, (cy1 + cy2) / 2 - self.diameter,  #####
+                                 font="Times " + str(10) + " italic bold",
                                  text='收益:' + str(self.rewards[num]))
 
     def write_to_log(self, data):
