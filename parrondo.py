@@ -57,7 +57,7 @@ def destroy_Parrondo____():
 
 
 class Parrondo____:
-    def __init__(self, top=None, size=5, init_reward=100, p1=0.8, p2=0.5, n_sampels=2):
+    def __init__(self, top=None, size=2, init_reward=100, p1=0.8, p2=0.5, n_sampels=12):
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
         self.p1 = p1
@@ -184,6 +184,8 @@ class Parrondo____:
         self.Text_neighborInfo.configure(width=326)
         self.Text_neighborInfo.configure(wrap=WORD)
 
+
+        # self.Text_startConn = Text(self.Frame4)
         self.Text_startConn = Text(self.Frame4)
         self.Text_startConn.place(relx=0.17, rely=0.74, relheight=0.14
                                   , relwidth=0.19)
@@ -242,8 +244,10 @@ class Parrondo____:
                 self.draw(num)
 
                 # 显示邻居信息
+                self.Text_neighborInfo.configure(state=NORMAL)
                 self.Text_neighborInfo.delete('1.0', END)
                 self.Text_neighborInfo.insert(END, self.get_neighbors_info(self.num))
+                self.Text_neighborInfo.configure(state=DISABLED)
 
                 v.set("请在右侧输入框中输入希望断开连接的节点编号, 确认后点击断开连接!")
                 ############################################
@@ -270,9 +274,13 @@ class Parrondo____:
                 data_i.append(neighbor_cut)
 
                 # 显示节点的次邻居信息
+
+                # self.Text_neighborInfo
                 neighbors_info.set(self.get_neighbors_info(neighbor_cut))
+                self.Text_neighborInfo.configure(state=NORMAL)
                 self.Text_neighborInfo.delete('1.0', END)
                 self.Text_neighborInfo.insert(END, self.get_neighbors_info(neighbor_cut))
+                self.Text_neighborInfo.configure(state=DISABLED)
 
                 #######################################
                 ###  建立连接
@@ -378,6 +386,13 @@ class Parrondo____:
         self.Canvas1.create_text((cx1 + cx2) / 2, (cy1 + cy2) / 2 - self.diameter,  #####
                                  font="Times " + str(10) + " italic bold",
                                  text='收益:' + str(self.rewards[num]))
+        # 添加总收益, 平均收益
+        total_rewards = sum(self.rewards[self.neighbors[num]])
+        n = len(self.rewards[self.neighbors[num]])
+        self.Canvas1.create_text(450, 520,
+            font="Times " + str(10) + " italic bold",
+            text='总收益:' +str(total_rewards)+'\n 平均收益: '+str(round(total_rewards/n,2)))
+
 
     def write_to_log(self, data):
         # 写标题
@@ -403,7 +418,10 @@ class Parrondo____:
         workbook.save('./log.xls')
 
     def show_log(self, str):
+        self.Text_log.configure(state=NORMAL)
         self.Text_log.insert('end', str + '\n')
+        self.Text_log.see(END)
+        self.Text_log.configure(state=DISABLED)
 
     def get_neighbors_info(self, num):
         content = str(num) + " 号的邻居\t收益\n--------------------\n"
