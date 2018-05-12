@@ -32,7 +32,7 @@ def vp_start_gui():
     '''Starting point when module is the main routine.'''
     global val, w, root
     root = Tk()
-    top = Parrondo____(root, size=5, init_reward=100, p1=0.8, p2=0.5, n_sampels=12)
+    top = Parrondo____(root, size=3, init_reward=100, p1=0.8, p2=0.5, n_sampels=12)
     parrondo_support.init(root, top)
     root.mainloop()
 
@@ -68,6 +68,8 @@ class Parrondo____:
         self.n_samples = n_sampels
         self.num = -1  # 随机选择的点
         self.neighbors = []
+
+        global image_file
         # fine neighbors
         for i in range(size):
             for j in range(size):
@@ -109,29 +111,23 @@ class Parrondo____:
         self.Frame2.configure(relief=GROOVE)
         self.Frame2.configure(width=585)
 
-        self.Canvas1 = Canvas(self.Frame2)
+        self.Canvas1 = Canvas(self.Frame2, bg='white')
         self.Canvas1.place(relx=0.02, rely=0.02, relheight=0.94, relwidth=0.96)
         self.Canvas1.configure(borderwidth="2")
         self.Canvas1.configure(relief=RIDGE)
         self.Canvas1.configure(selectbackground="#c4c4c4")
         self.Canvas1.configure(width=561)
+        image_file = PhotoImage(file='./logo.png')
+        image = self.Canvas1.create_image(100, 10, anchor='nw', image=image_file)
 
-        self.space = 325 / (size + 1)
-        self.diameter = 225 / size
-
-        for i in range(size):
-            t = (i + 1) * self.space + ((i + 1) * 2 - 1) / 2 * self.diameter
-            self.Canvas1.create_line(0, t, 550, t, width='5')
-            self.Canvas1.create_line(t, 0, t, 550, width='5')
-
-        for i in range(size ** 2):
-            x1 = (i % size + 1) * self.space + (i % size) * self.diameter
-            y1 = (i // size + 1) * self.space + (i // size) * self.diameter
-            x2 = x1 + self.diameter
-            y2 = y1 + self.diameter
-            self.Canvas1.create_oval(x1, y1, x2, y2, fill='red')
-            self.Canvas1.create_text((x1 + x2) / 2, (y1 + y2) / 2, font="Times " + str(80 // size) + " italic bold",
-                                     text=str(i))
+        introduction = '''
+        游戏简介:
+        Parrondo 游戏是一款模拟博弈的游戏.
+        具有丰富的娱乐性与益智性!
+        '''
+        self.Canvas1.create_text(250, 250,
+                                 font="Times " + str(10) + " italic bold",
+                                 text=introduction, fill='blue')
 
         self.Frame3 = Frame(top)
         self.Frame3.place(relx=0.0, rely=0.79, relheight=0.2, relwidth=0.62)
@@ -184,7 +180,6 @@ class Parrondo____:
         self.Text_neighborInfo.configure(width=326)
         self.Text_neighborInfo.configure(wrap=WORD)
 
-
         # self.Text_startConn = Text(self.Frame4)
         self.Text_startConn = Text(self.Frame4)
         self.Text_startConn.place(relx=0.17, rely=0.74, relheight=0.14
@@ -206,154 +201,190 @@ class Parrondo____:
         self.Label3.configure(width=59)
 
     def start_game(self):
-        self.Button_Conn.configure(state=NORMAL)
-        # clear
-        self.Text_log.delete('1.0', END)
-        self.Text_startConn.delete('1.0', END)
-        self.Text_neighborInfo.delete('1.0', END)
-        self.Button_startGame.configure(state=DISABLED)
+        if self.Button_startGame.cget('text') == '开始游戏':
+            self.Canvas1.delete('all')
+            self.space = 325 / (self.size + 1)
+            self.diameter = 225 / self.size
 
-        global v
-        global neighbors_info
-        v = StringVar()  # 提示信息
-        neighbors_info = StringVar()
-        self.Entry_info.configure(textvariable=v, state='readonly')
-        v.set("游戏已经开始!")
+            for i in range(self.size):
+                t = (i + 1) * self.space + ((i + 1) * 2 - 1) / 2 * self.diameter
+                self.Canvas1.create_line(0, t, 550, t, width='5')
+                self.Canvas1.create_line(t, 0, t, 550, width='5')
 
-        log_file = []
+            for i in range(self.size ** 2):
+                x1 = (i % self.size + 1) * self.space + (i % self.size) * self.diameter
+                y1 = (i // self.size + 1) * self.space + (i // self.size) * self.diameter
+                x2 = x1 + self.diameter
+                y2 = y1 + self.diameter
+                self.Canvas1.create_oval(x1, y1, x2, y2, fill='red')
+                self.Canvas1.create_text((x1 + x2) / 2, (y1 + y2) / 2,
+                                         font="Times " + str(80 // self.size) + " italic bold",
+                                         text=str(i + 1))
+            self.Button_startGame.configure(text='下一步')
 
-        for i in range(self.n_samples):
-            data_i = []  # 存储第i次游戏的数据
-            self.show_log("========第" + str(i) + "次========")  # 在窗口显示游戏过程
-            data_i.append(i + 1)  # 第i次游戏的数据list
+        else:
+            self.Button_Conn.configure(state=NORMAL)
+            # clear
+            self.Text_log.delete('1.0', END)
+            self.Text_startConn.delete('1.0', END)
+            self.Text_neighborInfo.delete('1.0', END)
+            self.Button_startGame.configure(state=DISABLED)
 
-            # 随机选择一个编号
-            num = random.randint(0, self.size ** 2 - 1)
-            self.num = num
-            self.show_log("系统已随机选择编号" + str(num) + "的节点!")
-            data_i.append(num)
+            global v
+            global neighbors_info
+            v = StringVar()  # 提示信息
+            neighbors_info = StringVar()
+            self.Entry_info.configure(textvariable=v, state='readonly')
+            v.set("游戏已经开始!")
 
-            neighbors_info.set(self.get_neighbors_info(num))
+            log_file = []
 
-            # 随机选择进入A环节还是B博弈
-            if random.randint(0, 1) == 0:
-                self.show_log('系统随机选择进入 A 环节')
-                data_i.append('A环节')
+            for i in range(self.n_samples):
+                data_i = []  # 存储第i次游戏的数据
+                self.show_log("========第" + str(i + 1) + "次========")  # 在窗口显示游戏过程
+                data_i.append(i + 1)  # 第i次游戏的数据list
 
-                # 画num和其邻居的图
-                self.draw(num)
+                # 随机选择一个编号, (如果随机选择的点的所有邻居的邻居也是随机点的邻居, 那么重新随机选一个新点)
+                while True:
+                    num = random.randint(0, self.size ** 2 - 1)
+                    num_is_ok = False
+                    for neighbor in self.neighbors[num]:  # 如果随机选择点的邻居的所有邻居都已经是随机点的邻居,则重新采样点
+                        if not set(self.neighbors[neighbor]).issubset(self.neighbors[num]):
+                            num_is_ok = True
+                            break
+                    if num_is_ok:
+                        break
 
-                # 显示邻居信息
-                self.Text_neighborInfo.configure(state=NORMAL)
-                self.Text_neighborInfo.delete('1.0', END)
-                self.Text_neighborInfo.insert(END, self.get_neighbors_info(self.num))
-                self.Text_neighborInfo.configure(state=DISABLED)
+                self.num = num
+                self.show_log("系统已随机选择编号" + str(num + 1) + "的节点!")
+                data_i.append(num)
 
-                v.set("请在右侧输入框中输入希望断开连接的节点编号, 确认后点击断开连接!")
-                ############################################
-                ###### 断开连接 #########
-                ############################################
+                neighbors_info.set(self.get_neighbors_info(num))
 
-                self.Button_Conn.wait_variable(var)  # ##################
+                # 随机选择进入A环节还是B博弈
+                if random.randint(0, 1) == 0:
+                    self.show_log('系统随机选择进入 A 环节')
+                    data_i.append('A环节')
 
-                # 选择一个邻居断开连接
-                neighbor_cut = self.Text_startConn.get('1.0', END).strip()
-                while not str.isdigit(neighbor_cut) or int(neighbor_cut) not in self.neighbors[self.num] or len(
-                        self.neighbors[int(neighbor_cut)]) == 1:
-                    messagebox.showerror(title='错误', message='邻居输入有误或输入的邻居只有一个邻居, 无法断开该邻居, 请重新输入!')
-                    self.Button_Conn.wait_variable(var)
+                    # 画num和其邻居的图
+                    self.draw(num)
+
+                    # 显示邻居信息
+                    self.Text_neighborInfo.configure(state=NORMAL)
+                    self.Text_neighborInfo.delete('1.0', END)
+                    self.Text_neighborInfo.insert(END, self.get_neighbors_info(self.num))
+                    self.Text_neighborInfo.configure(state=DISABLED)
+
+                    v.set("请在右侧输入框中输入希望断开连接的节点编号, 确认后点击断开连接!")
+                    ############################################
+                    ###### 断开连接 #########
+                    ############################################
+
+                    self.Button_Conn.wait_variable(var)  # ##################
+
+                    # 选择一个邻居断开连接
                     neighbor_cut = self.Text_startConn.get('1.0', END).strip()
+                    while not str.isdigit(neighbor_cut) or int(neighbor_cut) - 1 not in self.neighbors[self.num] or len(
+                            self.neighbors[int(neighbor_cut) - 1]) == 1 or set(
+                        self.neighbors[int(neighbor_cut) - 1]).issubset(self.neighbors[num]):
+                        messagebox.showerror(title='错误',
+                                             message='邻居输入有误或输入的邻居只有一个邻居或输入的邻居的邻居都是随机选择点的邻居, 无法断开该邻居, 请重新输入!')
+                        self.Button_Conn.wait_variable(var)
+                        neighbor_cut = self.Text_startConn.get('1.0', END).strip()
 
-                neighbor_cut = int(neighbor_cut)
+                    neighbor_cut = int(neighbor_cut) - 1
 
-                self.neighbors[self.num].remove(neighbor_cut)
-                self.neighbors[neighbor_cut].remove(self.num)
-                messagebox.showinfo(title='成功',
-                                    message='成功断开节点' + str(self.num) + '与节点' + str(neighbor_cut) + '的邻居关系')
-                self.show_log('成功断开节点' + str(self.num) + '与节点' + str(neighbor_cut) + '的邻居关系')
-                data_i.append(neighbor_cut)
+                    self.neighbors[self.num].remove(neighbor_cut)
+                    self.neighbors[neighbor_cut].remove(self.num)
+                    messagebox.showinfo(title='成功',
+                                        message='成功断开节点' + str(self.num + 1) + '与节点' + str(neighbor_cut + 1) + '的邻居关系')
+                    self.show_log('成功断开节点' + str(self.num + 1) + '与节点' + str(neighbor_cut + 1) + '的邻居关系')
+                    data_i.append(neighbor_cut)
 
-                # 显示节点的次邻居信息
+                    # 显示节点的次邻居信息
 
-                # self.Text_neighborInfo
-                neighbors_info.set(self.get_neighbors_info(neighbor_cut))
-                self.Text_neighborInfo.configure(state=NORMAL)
-                self.Text_neighborInfo.delete('1.0', END)
-                self.Text_neighborInfo.insert(END, self.get_neighbors_info(neighbor_cut))
-                self.Text_neighborInfo.configure(state=DISABLED)
+                    # self.Text_neighborInfo
+                    neighbors_info.set(self.get_neighbors_info(neighbor_cut))
+                    self.Text_neighborInfo.configure(state=NORMAL)
+                    self.Text_neighborInfo.delete('1.0', END)
+                    self.Text_neighborInfo.insert(END, self.get_neighbors_info(neighbor_cut))
+                    self.Text_neighborInfo.configure(state=DISABLED)
 
-                #######################################
-                ###  建立连接
-                #######################################
+                    #######################################
+                    ###  建立连接
+                    #######################################
 
-                v.set("请在右侧输入框中输入希望建立连接的节点编号, 确认后点击建立连接!")
-                # 设置按钮为"断开连接"or"建立连接"
-                self.Button_Conn.configure(text='建立连接', bg='yellow')
-                # 清空输入框的内容
-                self.Text_startConn.delete('1.0', END)
+                    v.set("请在右侧输入框中输入希望建立连接的节点编号, 确认后点击建立连接!")
+                    # 设置按钮为"断开连接"or"建立连接"
+                    self.Button_Conn.configure(text='建立连接', bg='yellow')
+                    # 清空输入框的内容
+                    self.Text_startConn.delete('1.0', END)
 
-                self.draw(neighbor_cut)
+                    self.draw(neighbor_cut)
 
-                # 选择一个次邻居建立连接
-                self.Button_Conn.wait_variable(var)
-                neighbor_connect = self.Text_startConn.get('1.0', END).strip()
-                while not str.isdigit(neighbor_connect) or int(neighbor_connect) not in self.neighbors[neighbor_cut]:
-                    messagebox.showerror(title='错误', message='邻居输入有误, 无法与该邻居建立连接, 请重新输入!')
+                    # 选择一个次邻居建立连接
                     self.Button_Conn.wait_variable(var)
                     neighbor_connect = self.Text_startConn.get('1.0', END).strip()
-                    self.Button_Conn.wait_variable(var)
+                    while not str.isdigit(neighbor_connect) or int(neighbor_connect) - 1 not in self.neighbors[
+                        neighbor_cut] or int(neighbor_connect) - 1 in self.neighbors[num]:
+                        messagebox.showerror(title='错误', message='邻居输入有误, 无法与该邻居建立连接, 请重新输入!')
+                        self.Button_Conn.wait_variable(var)
+                        neighbor_connect = self.Text_startConn.get('1.0', END).strip()
+                        self.Button_Conn.wait_variable(var)
 
-                neighbor_connect = int(neighbor_connect)
+                    neighbor_connect = int(neighbor_connect) - 1
 
-                self.neighbors[self.num].append(neighbor_connect)  # 建立连接
-                self.neighbors[neighbor_connect].append(self.num)
+                    self.neighbors[self.num].append(neighbor_connect)  # 建立连接
+                    self.neighbors[neighbor_connect].append(self.num)
 
-                messagebox.showinfo(title='成功',
-                                    message='成功建立节点 ' + str(self.num) + ' 与节点 ' + str(neighbor_connect) + '的邻居关系')
-                self.show_log('成功建立节点' + str(self.num) + '与节点' + str(neighbor_connect) + '的邻居关系')
-                data_i.append(neighbor_connect)
+                    messagebox.showinfo(title='成功',
+                                        message='成功建立节点 ' + str(self.num + 1) + ' 与节点 ' + str(
+                                            neighbor_connect + 1) + '的邻居关系')
+                    self.show_log('成功建立节点' + str(self.num + 1) + '与节点' + str(neighbor_connect + 1) + '的邻居关系')
+                    data_i.append(neighbor_connect)
 
-                self.Button_Conn.configure(text='断开连接', bg='yellow')
-                self.Text_startConn.delete('1.0', END)
+                    self.Button_Conn.configure(text='断开连接', bg='yellow')
+                    self.Text_startConn.delete('1.0', END)
 
-            else:
-                # print("----------------------进入 B 博弈---------------------")
-                self.show_log('系统随机选择进入 B 博弈')
-                data_i.append('B博弈')
-                # self.rewards[self.neighbors[num]]
-                if self.rewards[num] <= self.rewards[self.neighbors[num]].mean():  # 当被挑选节点的资本"不大于"其所有邻居资本的平均数, 玩分支1
-                    sampled_prob = random.uniform(0, 1)
-                    self.show_log('进入分支1')
-                    data_i.append('分支1')
-                    if sampled_prob <= self.p1:  # 分支1赢的概率p1
-                        self.rewards[num] += 1
-                        self.show_log("采样的概率为 %f, 赢了!" % sampled_prob)
-                        data_i.append('赢')
+                else:
+                    # print("----------------------进入 B 博弈---------------------")
+                    self.show_log('系统随机选择进入 B 博弈')
+                    data_i.append('B博弈')
+                    # self.rewards[self.neighbors[num]]
+                    if self.rewards[num] <= self.rewards[self.neighbors[num]].mean():  # 当被挑选节点的资本"不大于"其所有邻居资本的平均数, 玩分支1
+                        sampled_prob = random.uniform(0, 1)
+                        self.show_log('进入分支1')
+                        data_i.append('分支1')
+                        if sampled_prob <= self.p1:  # 分支1赢的概率p1
+                            self.rewards[num] += 1
+                            self.show_log("采样的概率为 %f, 赢了!" % sampled_prob)
+                            data_i.append('赢')
 
-                    else:
-                        self.show_log("采样的概率为 %f, 输了!" % sampled_prob)
-                        data_i.append('输')
+                        else:
+                            self.show_log("采样的概率为 %f, 输了!" % sampled_prob)
+                            data_i.append('输')
 
 
-                else:  # 当被挑选节点的资本"大于"其所有邻居资本的平均数, 玩分支2
-                    self.show_log('进入分支2')
-                    data_i.append('分支2')
-                    sampled_prob = random.uniform(0, 1)
-                    if sampled_prob <= self.p2:  # 赢的概率是p2
-                        self.rewards[num] += 1
-                        self.show_log("采样的概率为 %f, 赢了!" % sampled_prob)
-                        data_i.append('赢')
-                    else:
-                        self.show_log("采样的概率为 %f, 输了!" % sampled_prob)
-                        data_i.append('输')
+                    else:  # 当被挑选节点的资本"大于"其所有邻居资本的平均数, 玩分支2
+                        self.show_log('进入分支2')
+                        data_i.append('分支2')
+                        sampled_prob = random.uniform(0, 1)
+                        if sampled_prob <= self.p2:  # 赢的概率是p2
+                            self.rewards[num] += 1
+                            self.show_log("采样的概率为 %f, 赢了!" % sampled_prob)
+                            data_i.append('赢')
+                        else:
+                            self.show_log("采样的概率为 %f, 输了!" % sampled_prob)
+                            data_i.append('输')
 
-            self.show_log('群体收益: ' + str(sum(self.rewards)))
-            data_i.append(str(sum(self.rewards)))
-            log_file.append(data_i)
-            # print(log_file)
-        self.write_to_log(log_file)
-        self.Button_Conn.configure(state=DISABLED)
-        messagebox.showinfo(title='游戏结束', message='本次游戏已结束, 结果已保存为 log.xls')
+                self.show_log('群体收益: ' + str(sum(self.rewards)))
+                data_i.append(str(sum(self.rewards)))
+                log_file.append(data_i)
+                # print(log_file)
+            self.write_to_log(log_file)
+            self.Button_Conn.configure(state=DISABLED)
+            messagebox.showinfo(title='游戏结束', message='本次游戏已结束, 结果已保存为 log.xls')
+            self.Button_startGame.configure(state=DISABLED)
 
     def draw(self, num):
         self.Canvas1.delete('all')
@@ -374,7 +405,7 @@ class Parrondo____:
             self.Canvas1.create_oval(x1, y1, x2, y2, fill='red')
             self.Canvas1.create_text((x1 + x2) / 2, (y1 + y2) / 2,
                                      font="Times " + str(80 // self.size) + " italic bold",
-                                     text=str(self.neighbors[num][i]))
+                                     text=str(self.neighbors[num][i] + 1))
             self.Canvas1.create_text((x1 + x2) / 2, (y1 + y2) / 2 + self.diameter,  ######
                                      font="Times " + str(10) + " italic bold",
                                      text='收益:' + str(self.rewards[self.neighbors[num][i]]))
@@ -382,17 +413,16 @@ class Parrondo____:
         self.Canvas1.create_oval(cx1, cy1, cx2, cy2, fill='yellow')
         self.Canvas1.create_text((cx1 + cx2) / 2, (cy1 + cy2) / 2,
                                  font="Times " + str(80 // self.size) + " italic bold",
-                                 text=str(num))
+                                 text=str(num + 1))
         self.Canvas1.create_text((cx1 + cx2) / 2, (cy1 + cy2) / 2 - self.diameter,  #####
                                  font="Times " + str(10) + " italic bold",
                                  text='收益:' + str(self.rewards[num]))
         # 添加总收益, 平均收益
         total_rewards = sum(self.rewards[self.neighbors[num]])
         n = len(self.rewards[self.neighbors[num]])
-        self.Canvas1.create_text(450, 520,
-            font="Times " + str(10) + " italic bold",
-            text='总收益:' +str(total_rewards)+'\n 平均收益: '+str(round(total_rewards/n,2)))
-
+        self.Canvas1.create_text(450, 50,
+                                 font="Times " + str(10) + " italic bold",
+                                 text='总收益:' + str(total_rewards) + '\n 平均收益: ' + str(round(total_rewards / n, 2)))
 
     def write_to_log(self, data):
         # 写标题
@@ -424,9 +454,9 @@ class Parrondo____:
         self.Text_log.configure(state=DISABLED)
 
     def get_neighbors_info(self, num):
-        content = str(num) + " 号的邻居\t收益\n--------------------\n"
+        content = str(num + 1) + " 号的邻居\t收益\n--------------------\n"
         for i in range(len(self.neighbors[num])):
-            content += (str(self.neighbors[num][i]) + '\t' + str(self.rewards[self.neighbors[num][i]]))
+            content += (str(self.neighbors[num][i] + 1) + '\t' + str(self.rewards[self.neighbors[num][i]]))
             content += '\n'
         content += '--------------------'
         return content
