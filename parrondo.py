@@ -346,6 +346,8 @@ class Parrondo____:
                     self.Button_Conn.configure(text='断开连接', bg='yellow')
                     self.Text_startConn.delete('1.0', END)
 
+                    self.print_array(i + 1)  # 输出收益矩阵和连接情况
+
                 else:
                     # print("----------------------进入 B 博弈---------------------")
                     self.show_log('系统随机选择进入 B 博弈')
@@ -376,6 +378,7 @@ class Parrondo____:
                         else:
                             self.show_log("采样的概率为 %f, 输了!" % sampled_prob)
                             data_i.append('输')
+                    self.print_array(i + 1)  # 输出收益矩阵和连接情况
 
                 self.show_log('群体收益: ' + str(sum(self.rewards)))
                 data_i.append(str(sum(self.rewards)))
@@ -460,6 +463,21 @@ class Parrondo____:
             content += '\n'
         content += '--------------------'
         return content
+
+    def print_array(self, cnt):
+        print("-------------第 " + str(cnt) + " 次------------------")
+        temp_rewards = self.rewards.reshape(self.points.shape)
+        print("收益矩阵:")
+        for i in range(temp_rewards.shape[0]):
+            print(temp_rewards[i])
+
+        connections = np.zeros((self.points.shape[0] ** 2,) * 2, dtype=int)
+        for i in range(len(self.rewards)):
+            connections[i][self.neighbors[i]] = 1
+
+        print("连接情况:")
+        for i in range(connections.shape[0]):
+            print(str(connections[i]))
 
 
 if __name__ == '__main__':
