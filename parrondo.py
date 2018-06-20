@@ -474,6 +474,7 @@ class Parrondo____:
         connections = np.zeros((self.points.shape[0] ** 2,) * 2, dtype=int)
         for i in range(len(self.rewards)):
             connections[i][self.neighbors[i]] = 1
+            connections[i][i] = 1
 
         print("连接情况:")
         for i in range(connections.shape[0]):
