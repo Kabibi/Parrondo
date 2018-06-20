@@ -68,6 +68,9 @@ class Parrondo____:
         self.n_samples = n_sampels
         self.num = -1  # 随机选择的点
         self.neighbors = []
+        self.reward_matrix = self.rewards.reshape(self.points.shape)
+        self.connection_matrix = np.zeros((self.points.shape[0] ** 2,) * 2, dtype=int)
+        self.log_file = open('log.txt', 'w')
 
         global image_file
         # fine neighbors
@@ -466,19 +469,20 @@ class Parrondo____:
 
     def print_array(self, cnt):
         print("-------------第 " + str(cnt) + " 次------------------")
-        temp_rewards = self.rewards.reshape(self.points.shape)
+        self.log_file.write("-------------第 " + str(cnt) + " 次------------------\n")
         print("收益矩阵:")
-        for i in range(temp_rewards.shape[0]):
-            print(temp_rewards[i])
+        for i in range(self.reward_matrix.shape[0]):
+            print(self.reward_matrix[i])
+            self.log_file.write(str(self.reward_matrix[i]) + '\n')
 
-        connections = np.zeros((self.points.shape[0] ** 2,) * 2, dtype=int)
         for i in range(len(self.rewards)):
-            connections[i][self.neighbors[i]] = 1
-            connections[i][i] = 1
+            self.connection_matrix[i][self.neighbors[i]] = 1
+            self.connection_matrix[i][i] = 1
 
         print("连接情况:")
-        for i in range(connections.shape[0]):
-            print(str(connections[i]))
+        for i in range(self.connection_matrix.shape[0]):
+            print(str(self.connection_matrix[i]))
+            self.log_file.write(str(self.connection_matrix[i]) + '\n')
 
 
 if __name__ == '__main__':
